@@ -49,6 +49,20 @@ export default function SessionPage() {
     onMessage: handleMessage,
   });
 
+  // Session recovery: save state before browser close
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (session) {
+        localStorage.setItem(
+          `askus_autosave_${sessionId}`,
+          JSON.stringify({ messages, currentStage, timestamp: Date.now() })
+        );
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [session, sessionId, messages, currentStage]);
+
   // Session initialization
   useEffect(() => {
     if (!sessionId) return;
