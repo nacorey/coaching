@@ -47,69 +47,71 @@ export function EmotionSlider({ value, onChange }: EmotionSliderProps) {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      {/* Emoji buttons */}
-      <div className="flex justify-between items-end">
+    <div className="flex flex-col gap-5 px-2">
+      {/* Emoji buttons — 균등 배치 */}
+      <div className="flex">
         {EMOJIS.map((item) => {
           const isSelected = value === item.value;
           return (
-            <button
-              key={item.value}
-              type="button"
-              onClick={() => onChange(item.value)}
-              className="flex flex-col items-center gap-1 transition-all duration-200"
-              aria-label={item.label}
-            >
-              <span
-                className={[
-                  "text-2xl transition-all duration-200 block",
-                  isSelected ? "scale-110" : "opacity-40",
-                ].join(" ")}
+            <div key={item.value} className="flex-1 flex justify-center">
+              <button
+                type="button"
+                onClick={() => onChange(item.value)}
+                className="flex flex-col items-center gap-1.5 transition-all duration-200"
+                aria-label={item.label}
               >
-                {item.emoji}
-              </span>
-              <span
-                className={[
-                  "text-xs text-center transition-all duration-200",
-                  isSelected ? "text-brand-purple font-medium" : "text-gray-400",
-                ].join(" ")}
-              >
-                {item.label}
-              </span>
-            </button>
+                <span
+                  className={[
+                    "text-2xl transition-all duration-200 block",
+                    isSelected ? "scale-125" : "opacity-40",
+                  ].join(" ")}
+                >
+                  {item.emoji}
+                </span>
+                <span
+                  className={[
+                    "text-[11px] text-center leading-tight transition-all duration-200 whitespace-nowrap",
+                    isSelected ? "text-brand-purple font-semibold" : "text-gray-400",
+                  ].join(" ")}
+                >
+                  {item.label}
+                </span>
+              </button>
+            </div>
           );
         })}
       </div>
 
-      {/* Gradient track with draggable thumb */}
-      <div
-        ref={trackRef}
-        className="relative h-2 rounded-full cursor-pointer"
-        style={{
-          background:
-            "linear-gradient(to right, #888780, #534ab7)",
-        }}
-        onClick={handleTrackClick}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        role="slider"
-        aria-valuemin={1}
-        aria-valuemax={5}
-        aria-valuenow={value}
-        tabIndex={0}
-        onKeyDown={(e) => {
-          if (e.key === "ArrowRight" || e.key === "ArrowUp") {
-            onChange(Math.min(5, value + 1));
-          } else if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
-            onChange(Math.max(1, value - 1));
-          }
-        }}
-      >
-        {/* Thumb */}
+      {/* Gradient track — 이모지 중심에 맞춰 인셋 (flex-1 기준 좌우 10%) */}
+      <div className="mx-[10%]">
         <div
-          className="absolute top-1/2 -translate-y-1/2 h-5 w-5 rounded-full bg-brand-purple shadow-md border-2 border-white transition-all duration-200"
-          style={{ left: `calc(${progressPercent}% - 10px)` }}
-        />
+          ref={trackRef}
+          className="relative h-1.5 rounded-full cursor-pointer"
+          style={{
+            background: "linear-gradient(to right, #888780, #534ab7)",
+          }}
+          onClick={handleTrackClick}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          role="slider"
+          aria-valuemin={1}
+          aria-valuemax={5}
+          aria-valuenow={value}
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === "ArrowRight" || e.key === "ArrowUp") {
+              onChange(Math.min(5, value + 1));
+            } else if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
+              onChange(Math.max(1, value - 1));
+            }
+          }}
+        >
+          {/* Thumb */}
+          <div
+            className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 h-5 w-5 rounded-full bg-brand-purple shadow-md border-2 border-white transition-all duration-200"
+            style={{ left: `${progressPercent}%` }}
+          />
+        </div>
       </div>
     </div>
   );
