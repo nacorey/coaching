@@ -2,7 +2,10 @@ import OpenAI from "openai";
 import { SUMMARIZE_SYSTEM_PROMPT } from "@/lib/ai/system-prompt";
 import type { SessionSummary } from "@/lib/storage/types";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+  baseURL: process.env.OPENAI_BASE_URL,
+});
 
 export async function POST(req: Request) {
   try {
@@ -16,7 +19,7 @@ export async function POST(req: Request) {
       .join("\n");
 
     const response = await openai.chat.completions.create({
-      model: "gpt-5.4-mini",
+      model: process.env.OPENAI_MODEL || "gpt-5.4-mini",
       messages: [
         { role: "system", content: SUMMARIZE_SYSTEM_PROMPT },
         { role: "user", content: conversationText },
