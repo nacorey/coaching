@@ -205,6 +205,19 @@ export default function SessionPage() {
         </div>
       )}
 
+      {/* Session end guidance banner */}
+      {messages.some(
+        (m) =>
+          m.role === "assistant" &&
+          m.content.includes("오늘 대화를 정리해 드릴게요")
+      ) && (
+        <div className="bg-brand-soft border-b border-brand-soft px-4 py-3 shrink-0">
+          <p className="text-xs text-brand-purple text-center font-medium">
+            우측 상단의 <strong>세션 종료</strong>를 클릭하시면 코칭 결과를 확인하실 수 있어요.
+          </p>
+        </div>
+      )}
+
       {/* Chat Container */}
       <ChatContainer
         messages={messages}
