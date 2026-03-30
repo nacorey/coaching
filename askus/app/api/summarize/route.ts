@@ -22,7 +22,7 @@ export async function POST(req: Request) {
         { role: "user", content: conversationText },
       ],
       temperature: 0.3,
-      max_tokens: 1000,
+      max_completion_tokens: 1000,
     });
 
     const raw = response.choices[0]?.message?.content ?? "";

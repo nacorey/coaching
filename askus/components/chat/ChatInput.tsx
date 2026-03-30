@@ -28,6 +28,13 @@ export function ChatInput({
     textarea.style.height = Math.min(textarea.scrollHeight, 120) + "px";
   }, [value]);
 
+  // 응답 완료 후 입력창 자동 포커스
+  useEffect(() => {
+    if (!disabled && textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, [disabled]);
+
   const canSend = value.trim().length >= 2 && !disabled;
 
   function handleSend() {
