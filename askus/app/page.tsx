@@ -1,6 +1,59 @@
-import Link from "next/link";
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter();
+  const [showModal, setShowModal] = useState(false);
+  const [code, setCode] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [alreadyVerified, setAlreadyVerified] = useState(false);
+
+  useEffect(() => {
+    // Check if already verified by looking for cookie presence
+    if (document.cookie.includes("askus_access=")) {
+      setAlreadyVerified(true);
+    }
+  }, []);
+
+  function handleCTAClick() {
+    if (alreadyVerified) {
+      router.push("/session/new");
+      return;
+    }
+    setShowModal(true);
+    setCode("");
+    setError("");
+  }
+
+  async function handleSubmit() {
+    if (!code.trim()) return;
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/verify-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: code.trim() }),
+      });
+
+      if (res.ok) {
+        setAlreadyVerified(true);
+        setShowModal(false);
+        router.push("/session/new");
+      } else {
+        setError("코드가 올바르지 않습니다.");
+      }
+    } catch {
+      setError("오류가 발생했습니다. 다시 시도해주세요.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="flex flex-col flex-1 bg-brand-bg font-sans">
       {/* Hero Section */}
@@ -30,15 +83,15 @@ export default function Home() {
           </h1>
 
           {/* CTA */}
-          <Link
-            href="/session/new"
+          <button
+            onClick={handleCTAClick}
             className="mt-2 inline-block rounded-full bg-white px-8 py-3 text-base font-semibold text-brand-purple shadow-lg transition-opacity hover:opacity-90"
           >
             코칭 시작하기
-          </Link>
+          </button>
 
           {/* Subtext */}
-          <p className="text-sm text-white/60">무료 체험 | 회원가입 불필요</p>
+          <p className="text-sm text-white/60">초대 코드가 필요합니다</p>
         </div>
       </section>
 
@@ -78,6 +131,49 @@ export default function Home() {
       <footer className="mt-auto py-8 text-center text-sm text-brand-gray">
         질문이 당신을 바꿉니다.
       </footer>
+
+      {/* Access Code Modal */}
+      {showModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+          onClick={() => setShowModal(false)}
+        >
+          <div
+            className="w-full max-w-sm mx-4 rounded-2xl bg-white p-6 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-lg font-bold text-gray-900 mb-1">초대 코드 입력</h2>
+            <p className="text-sm text-brand-gray mb-5">
+              코칭을 시작하려면 초대 코드를 입력해주세요.
+            </p>
+
+            <input
+              type="text"
+              value={code}
+              onChange={(e) => {
+                setCode(e.target.value);
+                setError("");
+              }}
+              onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+              placeholder="코드를 입력하세요"
+              autoFocus
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-brand-purple focus:ring-2 focus:ring-brand-soft"
+            />
+
+            {error && (
+              <p className="mt-2 text-sm text-red-500">{error}</p>
+            )}
+
+            <button
+              onClick={handleSubmit}
+              disabled={loading || !code.trim()}
+              className="mt-4 w-full py-3 rounded-xl text-sm font-semibold bg-brand-purple text-white hover:bg-brand-deep active:scale-[0.98] transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {loading ? "확인 중..." : "확인"}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

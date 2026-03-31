@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { cookies } from "next/headers";
 import { COACHING_SYSTEM_PROMPT } from "@/lib/ai/system-prompt";
 
 const openai = new OpenAI({
@@ -8,6 +9,11 @@ const openai = new OpenAI({
 
 export async function POST(req: Request) {
   try {
+    const cookieStore = await cookies();
+    if (cookieStore.get("askus_access")?.value !== "granted") {
+      return new Response("Unauthorized", { status: 401 });
+    }
+
     const { messages, topic } = await req.json();
     if (!messages || !Array.isArray(messages)) {
       return new Response("messages is required", { status: 400 });
