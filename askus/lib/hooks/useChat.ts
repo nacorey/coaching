@@ -3,6 +3,13 @@ import { useState, useCallback, useRef } from "react";
 import { parseGrowPrefix, findGrowPrefixEnd } from "@/lib/ai/grow-parser";
 import type { Message, GrowStage, CoachingTopic } from "@/lib/storage/types";
 
+const STAGE_ORDER: Record<GrowStage, number> = {
+  goal: 0,
+  reality: 1,
+  options: 2,
+  will: 3,
+};
+
 export interface UseChatOptions {
   topic: CoachingTopic;
   onMessage?: (message: Message) => void;
@@ -97,13 +104,22 @@ export function useChat({ topic, onMessage, onStageChange }: UseChatOptions) {
         // Parse the full response for metadata
         const { meta, text } = parseGrowPrefix(buffer);
 
-        // Update GROW stage if confidence is high enough
+        // Update GROW stage — forward-only progression
         let resolvedStage: GrowStage | null = currentStage;
-        if (meta && meta.confidence >= 0.7) {
-          resolvedStage = meta.stage;
-          setCurrentStage(meta.stage);
-          if (meta.stage !== currentStage) {
-            onStageChange?.(meta.stage);
+        if (meta && meta.confidence >= 0.5) {
+          const canAdvance =
+            !currentStage ||
+            STAGE_ORDER[meta.stage] >= STAGE_ORDER[currentStage];
+
+          if (canAdvance) {
+            resolvedStage = meta.stage;
+            setCurrentStage(meta.stage);
+            if (meta.stage !== currentStage) {
+              onStageChange?.(meta.stage);
+            }
+          } else {
+            // Model tried to go backwards — keep current stage
+            resolvedStage = currentStage;
           }
         }
 

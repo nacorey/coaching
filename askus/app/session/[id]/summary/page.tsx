@@ -235,7 +235,19 @@ export default function SessionSummaryPage() {
             </div>
           )}
 
-          {/* 6. Buttons */}
+          {/* 6. Next Question Card */}
+          {session.summary?.nextQuestion && (
+            <div className="rounded-[14px] border border-brand-soft bg-gradient-to-br from-[#F5F3FF] to-white p-5">
+              <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-brand-gray mb-3">
+                다음 세션을 위한 질문
+              </p>
+              <p className="text-sm text-gray-700 leading-relaxed italic">
+                &ldquo;{session.summary.nextQuestion}&rdquo;
+              </p>
+            </div>
+          )}
+
+          {/* 7. Buttons */}
           <div className="pt-2 space-y-2.5">
             <Link
               href="/session/new"

@@ -14,6 +14,7 @@ export interface SessionSummary {
   decisions: string[];
   actionPlan: string[];
   growJourney: GrowStage[];
+  nextQuestion?: string;
 }
 
 export interface Session {
